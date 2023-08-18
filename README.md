@@ -29,8 +29,7 @@ Libraries used:
 ## Example Graphs
 
 
-
-| ![Average Elo Disparity](https://github.com/AlfiePerkins1/FaceitStats/assets/28139876/0831c55c-968e-4190-9ce1-5b0a437e705f) | 
+| ![Average Elo Disparity](https://github.com/AlfiePerkins1/FaceitStats/assets/28139876/d4824ab6-1dda-452e-a476-a5300d0cd147) | 
 |:--:| 
 | *Average Elo Disparity* |
 
