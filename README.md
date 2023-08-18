@@ -17,3 +17,10 @@ Libraries used:
 - Pandas | For dataframe manipulation
 - BeautifulSoup | For web scraping data when API isnt avaliable
 - time | For adding an interval to each round of web scraping as to not get timedout
+
+
+## ToDo
+
+* Multithreading to speed up API requests as it currently takes about 30 seconds to get the data to draw the Average Elo Disparity chart
+* Make use of more data avaliable from the official Faceit API as to not rely on web scraping
+* Implement more graphs and options
