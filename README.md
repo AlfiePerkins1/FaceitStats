@@ -24,3 +24,19 @@ Libraries used:
 * Multithreading to speed up API requests as it currently takes about 30 seconds to get the data to draw the Average Elo Disparity chart
 * Make use of more data avaliable from the official Faceit API as to not rely on web scraping
 * Implement more graphs and options
+
+
+## Example Graphs
+
+
+
+| ![Average Elo Disparity](https://github.com/AlfiePerkins1/FaceitStats/assets/28139876/0831c55c-968e-4190-9ce1-5b0a437e705f) | 
+|:--:| 
+| *Average Elo Disparity* |
+
+
+
+| ![image](https://github.com/AlfiePerkins1/FaceitStats/assets/28139876/31bfd2ca-7b36-4333-9130-a7c6e0aaca88) | 
+|:--:| 
+| *Elo compared with games Graph* |
+
