@@ -35,7 +35,7 @@ Libraries used:
 
 
 
-| ![image](https://github.com/AlfiePerkins1/FaceitStats/assets/28139876/31bfd2ca-7b36-4333-9130-a7c6e0aaca88) | 
+| ![Elo compared with games](https://github.com/AlfiePerkins1/FaceitStats/assets/28139876/972e4def-e1be-47c6-9628-dd233f534afb) | 
 |:--:| 
 | *Elo compared with games Graph* |
 
