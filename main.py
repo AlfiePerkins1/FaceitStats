@@ -1,5 +1,3 @@
-#API Key 3c4e8343-365e-4a93-86ac-cfffbb47ff70
-
 import requests
 import json
 import matplotlib.pyplot as plt
