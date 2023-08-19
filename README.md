@@ -6,6 +6,7 @@ A python project which uses the official [Faceit API](https://developers.faceit.
 Currently supported:
 1. Average Elo disparity within users games
 2. Elo chart with Elo on the Y axis and games played on the X axis
+3. Compare the users Kill Death ratio with the average elo of the enemy team
 
 
 Libraries used:
@@ -38,4 +39,9 @@ Libraries used:
 | ![Elo compared with games](https://github.com/AlfiePerkins1/FaceitStats/assets/28139876/972e4def-e1be-47c6-9628-dd233f534afb) | 
 |:--:| 
 | *Elo compared with games Graph* |
+
+| ![KD compared with enemy Elo](https://github.com/AlfiePerkins1/FaceitStats/assets/28139876/7f22c791-0d2b-4072-bb18-0f6eb6cd22a0) | 
+|:--:| 
+| *KD compared with enemy Elo* |
+
 
