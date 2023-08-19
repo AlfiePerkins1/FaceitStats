@@ -7,6 +7,7 @@ Currently supported:
 1. Average Elo disparity within users games
 2. Elo chart with Elo on the Y axis and games played on the X axis
 3. Compare the users Kill Death ratio with the average elo of the enemy team
+4. Caching web scraped data to prevent having to continuously scrape data when a user requests it
 
 
 Libraries used:
