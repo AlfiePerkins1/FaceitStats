@@ -7,7 +7,7 @@ Currently supported:
 1. Average Elo disparity within users games
 2. Elo chart with Elo on the Y axis and games played on the X axis
 3. Compare the users Kill Death ratio with the average elo of the enemy team
-4. Caching web scraped data to prevent having to continuously scrape data when a user requests it
+4. Caching web scraped data to prevent having to continuously scrape data when a user requests it(Currently only stored locally in a .csv file)
 
 
 Libraries used:
@@ -26,6 +26,7 @@ Libraries used:
 * Multithreading to speed up API requests as it currently takes about 30 seconds to get the data to draw the Average Elo Disparity chart
 * Make use of more data avaliable from the official Faceit API as to not rely on web scraping
 * Implement more graphs and options
+* Cache users in a database to lower storage used
 
 
 ## Example Graphs
