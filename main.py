@@ -1,3 +1,5 @@
+#API Key 3c4e8343-365e-4a93-86ac-cfffbb47ff70
+
 import requests
 import json
 import matplotlib.pyplot as plt
@@ -6,6 +8,7 @@ import pandas as pd
 from bs4 import BeautifulSoup
 import time
 import config
+import os
 
 
 def getFaceitID():
@@ -29,33 +32,47 @@ def getFaceitID():
     Menu(playerID, amountOfGames, FaceitNickname, playerSteamID)
 
 
-def getFaceitMatchHistory(playerID, limit,FaceitNickname):
+def getFaceitMatchHistory(playerID, limit,FaceitNickname, graph):
     matchID = []
+    offset = 0
+    loopIndex = limit /100
+    i = 0
     payload = {}
     headers = {
         'Authorization': config.api_key,
     }
+    #Limit of 100 games per request
 
-    # Getting match history
-    URL = f"https://open.faceit.com/data/v4/players/{playerID}/history?game=csgo&offset=0&limit={limit}"
+    while i < loopIndex:
+        # Getting match history
+        URL = f"https://open.faceit.com/data/v4/players/{playerID}/history?game=csgo&offset={offset}&limit=100"
 
-    response = requests.request("GET", URL, headers=headers, data=payload)
-    data = response.json()
+        response = requests.request("GET", URL, headers=headers, data=payload)
+        data = response.json()
 
-    print(data['items'][0]['match_id'])
+        print(data['items'][0]['match_id'])
 
-    x = 0
-    for x in range(limit-1):
-        matchID.append(data['items'][x]['match_id'])
-        print(matchID[x])
+        x = 0
+        for x in range(100):
+            matchID.append(data['items'][x]['match_id'])
+            print(matchID[x])
 
-    getFaceitMatchStats(matchID, limit, FaceitNickname)
+        offset += 100
+        time.sleep(2)
+        i+=1
+
+    getFaceitMatchStats(matchID, limit, FaceitNickname, graph)
 
 
-def getFaceitMatchStats(matchIDArray, limit, FaceitNickname):
+
+def getFaceitMatchStats(matchIDArray, limit, FaceitNickname, graph):
 
     EnemyElo = []
     myElo = []
+    myKD = []
+    myKR = []
+    myHSP = []
+    myKills = []
     myTeam = []
     payload = {}
     headers = {
@@ -67,43 +84,103 @@ def getFaceitMatchStats(matchIDArray, limit, FaceitNickname):
         print(f"Game {x} ID: {matchIDArray[x]}")
         # Getting match history
         URL = f"https://open.faceit.com/data/v4/matches/{matchIDArray[x]}"
-
-
-
         response = requests.request("GET", URL, headers=headers, data=payload)
         data = response.json()
+
+        # Get the stats for the game
+        StatsURL = f"https://open.faceit.com/data/v4/matches/{matchIDArray[x]}/stats"
+        StatsResponse = requests.request("GET", StatsURL, headers=headers, data=payload)
+        StatsData = StatsResponse.json()
+
+        #Find player ID
+        i = 0
+        playerNum = 0
+        playerTeam = 0
+        for i in range(5):
+            try:
+                if StatsData['rounds'][0]['teams'][1]['players'][i]['nickname'] == FaceitNickname:
+                    playerNum = i
+                    playerTeam = 1
+                    print(f"Found, playerID of {i} team 1")
+                elif StatsData['rounds'][0]['teams'][0]['players'][i]['nickname'] == FaceitNickname:
+                    playerNum = i
+                    playerTeam = 0
+                    print(f"Found, playerID of {i} team 0")
+                else:
+                    pass
+                i += 1
+            except:
+                #Occurs when a player left the game
+                ("Only 4 players on team")
+
+
         #Check to see if the game is a hub
         if data['competition_type'] == "hub":
             print(f"Game {x} is a hub game, no average elo")
         else:
-              # Loop through players from Team 1
-            Team1Names = []
-            while j in range(5):
-                Team1Names.append(data['teams']['faction1']['roster'][j]['nickname'])
-                j += 1
-            if FaceitNickname in Team1Names:
-                try:
-                    myTeam.append(True)
-                    EnemyElo.append(data['teams']['faction2']['stats']['rating'])
-                    #print(f"Elo for enemy team(not my team) {EnemyElo[x]}")
+            try:
+                  # Loop through players from Team 1
+                Team1Names = []
+                while j in range(5):
+                    Team1Names.append(data['teams']['faction1']['roster'][j]['nickname'])
+                    j += 1
+                if FaceitNickname in Team1Names:
+                    try:
+                        myTeam.append(True)
+                        EnemyElo.append(data['teams']['faction2']['stats']['rating'])
 
-                    myElo.append(data['teams']['faction1']['stats']['rating'])
-                    #print(f"Elo for my team {myElo[x]}")
-                except:
-                    print("No average elo")
-            else:
-                try:
-                    myTeam.append(False)
-                    EnemyElo.append(data['teams']['faction1']['stats']['rating'])
-                    #print(f"Elo for enemy team {EnemyElo[x]}")
+                        myElo.append(data['teams']['faction1']['stats']['rating'])
 
-                    myElo.append(data['teams']['faction2']['stats']['rating'])
-                    #print(f"Elo for my team {myElo[x]}")
-                except:
-                    print("No average elo")
-        #print(myTeam[x])
+                        #Add stats here
+                        KD = StatsData['rounds'][0]['teams'][playerTeam]['players'][playerNum]['player_stats']["K/D Ratio"]
+                        KR = StatsData['rounds'][0]['teams'][playerTeam]['players'][playerNum]['player_stats']["K/R Ratio"]
+                        HSP = StatsData['rounds'][0]['teams'][playerTeam]['players'][playerNum]['player_stats']["Headshots %"]
+                        Kills = StatsData['rounds'][0]['teams'][playerTeam]['players'][playerNum]['player_stats']["Kills"]
+                        myKD.append(KD)
+                        myKR.append(KR)
+                        myHSP.append(HSP)
+                        myKills.append(Kills)
+                        print(f"Appended for game ID {matchIDArray[j]}, KD: {KD}, KR: {KR}, HSP: {HSP}, Kills: {Kills} ")
 
-    MakeEloGraph(EnemyElo,myElo, FaceitNickname)
+                    except:
+                        print("No average elo")
+                else:
+                    try:
+                        myTeam.append(False)
+                        EnemyElo.append(data['teams']['faction1']['stats']['rating'])
+
+                        myElo.append(data['teams']['faction2']['stats']['rating'])
+
+                        # Add stats here
+                        KD = StatsData['rounds'][0]['teams'][playerTeam]['players'][playerNum]['player_stats']["K/D Ratio"]
+                        KR = StatsData['rounds'][0]['teams'][playerTeam]['players'][playerNum]['player_stats']["K/R Ratio"]
+                        HSP = StatsData['rounds'][0]['teams'][playerTeam]['players'][playerNum]['player_stats']["Headshots %"]
+                        Kills = StatsData['rounds'][0]['teams'][playerTeam]['players'][playerNum]['player_stats']["Kills"]
+                        myKD.append(KD)
+                        myKR.append(KR)
+                        myHSP.append(HSP)
+                        myKills.append(Kills)
+                        print(f"Appended for game ID {matchIDArray[j]}, KD: {KD}, KR: {KR}, HSP: {HSP}, Kills: {Kills} ")
+
+                        #print(f"Elo for my team {myElo[x]}")
+                    except:
+                        print("No average elo")
+
+            except:
+                print("Player not found")
+
+    if graph == "elo":
+        MakeEloGraph(EnemyElo,myElo, FaceitNickname)
+    if graph == "stats":
+        for i in range(len(KD)):
+            print(EnemyElo[i])
+            print(myKD[i])
+            print(myKR[i])
+            print(myHSP[i])
+            print(myKills[i])
+
+        MakeStatsGraph(EnemyElo, myKD, myKR, myHSP, myKills, FaceitNickname)
+
 
 
 def MakeEloGraph(EnemyElo, myElo, FaceitNickname):
@@ -126,24 +203,55 @@ def MakeEloGraph(EnemyElo, myElo, FaceitNickname):
     plt.yscale('linear')
     print('Printed')
 
+def MakeStatsGraph(EnemyElo, KD, KR, HSP, Kills, FaceitNickname):
+
+    print(KD[0])
+    EnemyElo = [int(x) for x in EnemyElo]
+    KD = [float(x) for x in KD]
+    KR = [float(x) for x in KR]
+    HSP = [float(x) for x in HSP]
+    Kills = [float(x) for x in Kills]
+
+    plt.scatter(EnemyElo, KD)
+    plt.grid(True)
+    plt.xlabel("Enemy Elo")
+    plt.ylabel(f"KD for {FaceitNickname}")
+    plt.show(block=True)
 
 
 def Menu(playerID, amountOfGames, FaceitNickname, playerSteamID):
     print("Options:")
     print("1. Average Elo comparison")
     print("2. Elo compared with games graph")
+    print("3. Stats Graph")
 
     print("")
     print(f"Faceit ID {playerID}")
 
     choice = int(input("Pick an option"))
     if choice == 1:
-        getFaceitMatchHistory(playerID, amountOfGames, FaceitNickname)
+        getFaceitMatchHistory(playerID, amountOfGames, FaceitNickname, 'elo')
     if choice == 2:
-        ScrapeFaceitFinder(playerID,amountOfGames, FaceitNickname, playerSteamID)
+        checkIfCached(playerID, amountOfGames, FaceitNickname, playerSteamID)
+    if choice == 3:
+        getFaceitMatchHistory(playerID, amountOfGames, FaceitNickname, 'stats')
 
 
+def checkIfCached(playerID, amountOfGames, FaceitNickname, playerSteamID):
+    if os.path.isfile(f"PlayerStats/{FaceitNickname}.csv") == True:
+        print(f"{FaceitNickname}.csv exists")
+        ti_c = os.path.getctime(f"PlayerStats/{FaceitNickname}.csv")
+        choice = input(f"This data was created on {time.ctime(ti_c)}, are you sure you want to use it? y/n")
 
+        if choice == "n":
+            print("Generating new file and overwriting")
+            ScrapeFaceitFinder(playerID, amountOfGames, FaceitNickname, playerSteamID)
+        else:
+            cachedDf = pd.read_csv(f"PlayerStats/{FaceitNickname}.csv")
+            createGraph(cachedDf, FaceitNickname)
+    else:
+        print("False")
+        ScrapeFaceitFinder(playerID, amountOfGames, FaceitNickname, playerSteamID)
 
 
 def ScrapeFaceitFinder(playerID,amountOfGames, FaceitNickname, playerSteamID):
@@ -166,7 +274,7 @@ def ScrapeFaceitFinder(playerID,amountOfGames, FaceitNickname, playerSteamID):
     #Split Data to how many games
     data = data.iloc[:amountOfGames]
     print(data)
-    data.to_csv('testData.csv', index =False)
+    data.to_csv(f"PlayerStats/{FaceitNickname}.csv", index =False)
     createGraph(data, FaceitNickname)
 
 def createGraph(data, FaceitNickname):
@@ -233,4 +341,5 @@ def scrape(steamID):
 if __name__ == "__main__":
     getFaceitID()
     #scrape()
+
 
