@@ -1,6 +1,6 @@
 # FaceitStats
 
-**Main.py is currently the reformatted and reorganised version of the program but is incomplete temporarily**
+**Main2.py is currently the reformatted and reorganised version of the program but is incomplete temporarily**
 
 A python project which uses the official [Faceit API](https://developers.faceit.com/docs/tools/data-api) to return stats about the user.
 
